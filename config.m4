@@ -13,9 +13,9 @@ dnl [  --with-tl_toolkit             Include tl_toolkit support])
 
 dnl Otherwise use enable:
 
-dnl PHP_ARG_ENABLE(tl_toolkit, whether to enable tl_toolkit support,
-dnl Make sure that the comment is aligned:
-dnl [  --enable-tl_toolkit           Enable tl_toolkit support])
+PHP_ARG_ENABLE(tl_toolkit, whether to enable tl_toolkit support,
+Make sure that the comment is aligned:
+[  --enable-tl_toolkit           Enable tl_toolkit support])
 
 if test "$PHP_TL_TOOLKIT" != "no"; then
   dnl Write more examples of tests here...

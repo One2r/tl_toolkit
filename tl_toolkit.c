@@ -44,33 +44,18 @@ PHP_INI_END()
 */
 /* }}} */
 
-/* Remove the following function when you have successfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
 
-/* Every user-visible function in PHP should document itself in the source */
-/* {{{ proto string confirm_tl_toolkit_compiled(string arg)
-   Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_tl_toolkit_compiled)
+/** {{{ proto string tl_toolkit_info()
+ */
+PHP_FUNCTION(tl_toolkit_info)
 {
-	char *arg = NULL;
-	size_t arg_len, len;
-	zend_string *strg;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &arg, &arg_len) == FAILURE) {
-		return;
-	}
-
-	strg = strpprintf(0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "tl_toolkit", arg);
+    zend_string *strg;
+	strg = strpprintf(0, "tl_toolkit version=%s", PHP_TL_TOOLKIT_VERSION);
 
 	RETURN_STR(strg);
 }
 /* }}} */
-/* The previous line is meant for vim and emacs, so it can correctly fold and
-   unfold functions in source code. See the corresponding marks just before
-   function definition, where the functions purpose is also documented. Please
-   follow this convention for the convenience of others editing your code.
-*/
+
 
 
 /* {{{ php_tl_toolkit_init_globals
@@ -146,7 +131,7 @@ PHP_MINFO_FUNCTION(tl_toolkit)
  * Every user visible function must have an entry in tl_toolkit_functions[].
  */
 const zend_function_entry tl_toolkit_functions[] = {
-	PHP_FE(confirm_tl_toolkit_compiled,	NULL)		/* For testing, remove later. */
+	PHP_FE(tl_toolkit_info,	NULL)		/* For testing, remove later. */
 	PHP_FE_END	/* Must be the last line in tl_toolkit_functions[] */
 };
 /* }}} */
