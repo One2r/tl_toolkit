@@ -22,9 +22,11 @@
 #include "config.h"
 #endif
 
+/**
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+*/
 #include "php_tl_toolkit.h"
 
 /* If you declare any globals in php_tl_toolkit.h uncomment this:
@@ -132,8 +134,9 @@ PHP_MINFO_FUNCTION(tl_toolkit)
  * Every user visible function must have an entry in tl_toolkit_functions[].
  */
 const zend_function_entry tl_toolkit_functions[] = {
-	PHP_FE(tl_toolkit_info,	NULL)		/* For testing, remove later. */
-	PHP_FE_END	/* Must be the last line in tl_toolkit_functions[] */
+	PHP_FE(tl_toolkit_info, NULL)
+	PHP_FE(tl_toolkit_info_v, NULL)
+	PHP_FE_END
 };
 /* }}} */
 

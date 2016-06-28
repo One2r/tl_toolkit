@@ -21,6 +21,12 @@
 #ifndef PHP_TL_TOOLKIT_H
 #define PHP_TL_TOOLKIT_H
 
+#include "php.h"
+#include "php_ini.h"
+#include "ext/standard/info.h"
+
+#include "tl_string.h"
+
 extern zend_module_entry tl_toolkit_module_entry;
 #define phpext_tl_toolkit_ptr &tl_toolkit_module_entry
 
@@ -59,7 +65,6 @@ ZEND_TSRMLS_CACHE_EXTERN();
 #endif
 
 #endif	/* PHP_TL_TOOLKIT_H */
-
 
 /*
  * Local variables:
