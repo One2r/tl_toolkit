@@ -137,7 +137,7 @@ PHP_MINFO_FUNCTION(tl_toolkit)
  */
 const zend_function_entry tl_toolkit_functions[] = {
 	PHP_FE(tl_toolkit_info, NULL)
-	PHP_FE(tl_toolkit_info_v, NULL)
+	PHP_FE(tl_str_highlight, NULL)
 	PHP_FE_END
 };
 /* }}} */
