@@ -1,3 +1,5 @@
+#include "php.h"
+#include "php_tl_toolkit.h"
 /** {{{ proto string tl_toolkit_info_v()
  */
 PHP_FUNCTION(tl_toolkit_info_v)

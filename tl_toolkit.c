@@ -27,6 +27,8 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 */
+
+#include "php.h"
 #include "php_tl_toolkit.h"
 
 /* If you declare any globals in php_tl_toolkit.h uncomment this:

@@ -25,10 +25,12 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 
-#include "tl_string.h"
-
 extern zend_module_entry tl_toolkit_module_entry;
 #define phpext_tl_toolkit_ptr &tl_toolkit_module_entry
+
+PHP_FUNCTION(tl_toolkit_info)
+PHP_FUNCTION(tl_toolkit_info_v)
+
 
 #define PHP_TL_TOOLKIT_VERSION "0.1.0" /* Replace with version number for your extension */
 

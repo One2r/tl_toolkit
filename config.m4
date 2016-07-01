@@ -59,5 +59,5 @@ if test "$PHP_TL_TOOLKIT" != "no"; then
   dnl
   dnl PHP_SUBST(TL_TOOLKIT_SHARED_LIBADD)
 
-  PHP_NEW_EXTENSION(tl_toolkit, tl_toolkit.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
+  PHP_NEW_EXTENSION(tl_toolkit, tl_toolkit.c,tl_string.c, $ext_shared, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 fi
