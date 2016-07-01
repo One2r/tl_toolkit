@@ -4,7 +4,6 @@
 #include "config.h"
 #endif
 
-#include "php.h"
 #include "php_tl_toolkit.h"
 
 /** {{{ proto string tl_str_highlight()
@@ -17,5 +16,3 @@ PHP_FUNCTION(tl_str_highlight)
 	RETURN_STR(strg);
 }
 /* }}} */
-
-
