@@ -63,8 +63,8 @@ ZEND_TSRMLS_CACHE_EXTERN();
 #endif
 
 
-PHP_FUNCTION(tl_toolkit_info)
-PHP_FUNCTION(tl_toolkit_info_v)
+PHP_FUNCTION(tl_toolkit_info);
+PHP_FUNCTION(tl_toolkit_info_v);
 
 #endif	/* PHP_TL_TOOLKIT_H */
 
