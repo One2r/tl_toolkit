@@ -64,7 +64,7 @@ ZEND_TSRMLS_CACHE_EXTERN();
 
 
 PHP_FUNCTION(tl_toolkit_info);
-PHP_FUNCTION(tl_str_highlight);
+PHP_FUNCTION(tl_de_authcode);
 
 #endif	/* PHP_TL_TOOLKIT_H */
 
