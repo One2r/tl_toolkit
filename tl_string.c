@@ -28,7 +28,7 @@ zend_string *tl_md5(zend_string *str,zend_bool raw_output)
         return zend_string_init((char *) digest, 16,0);
     } else {
         make_digest_ex(md5str, digest, 16);
-       return zend_string_copy(md5str);
+       return zend_string_init(md5str,33,0);
     }
 }
 /* }}} */
@@ -50,7 +50,7 @@ PHP_FUNCTION(tl_authcode)
         Z_PARAM_STR(key)
         Z_PARAM_LONG(expiry)
     ZEND_PARSE_PARAMETERS_END();
-
-    RETURN_STR(input);
+    output = tl_md5(input,0);
+    RETURN_STR(output);
 }
 /* }}} */
