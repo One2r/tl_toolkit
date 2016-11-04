@@ -8,8 +8,9 @@
 #include "zend_API.h"
 #include "ext/standard/md5.h"
 
-#define PHP_TL_DE_AUTHCODE_DEFAULT_OP   "DECODE"
-#define PHP_TL_DE_AUTHCODE_DEFAULT_KEY  "6713wj3NZqPxPILb7MyzF2nFGc3DNoSW9yWMRA"
+#define PHP_TL_AUTHCODE_DEFAULT_OP   "DECODE"
+#define PHP_TL_AUTHCODE_DEFAULT_KEY  "6713wj3NZqPxPILb7MyzF2nFGc3DNoSW9yWMRA"
+#define PHP_TL_AUTHCODE_CKEY_LENGTH  4
 
 /* {{{ tl_md5
  */
@@ -33,13 +34,13 @@ zend_string *tl_md5(zend_string *str,zend_bool raw_output)
 }
 /* }}} */
 
-/*{{ tl_de_authcode
+/*{{ tl_authcode
  */
 PHP_FUNCTION(tl_authcode)
 {
     zend_string *input;
-    zend_string *operate = zend_string_init(PHP_TL_DE_AUTHCODE_DEFAULT_OP, sizeof(PHP_TL_DE_AUTHCODE_DEFAULT_OP) - 1, 0);
-    zend_string *key = zend_string_init(PHP_TL_DE_AUTHCODE_DEFAULT_KEY, sizeof(PHP_TL_DE_AUTHCODE_DEFAULT_KEY) - 1, 0);
+    zend_string *operate = zend_string_init(PHP_TL_AUTHCODE_DEFAULT_OP, sizeof(PHP_TL_AUTHCODE_DEFAULT_OP) - 1, 0);
+    zend_string *key = zend_string_init(PHP_TL_AUTHCODE_DEFAULT_KEY, sizeof(PHP_TL_AUTHCODE_DEFAULT_KEY) - 1, 0);
     zend_long expiry = 0;
     zend_string *output = NULL;
 
@@ -50,7 +51,20 @@ PHP_FUNCTION(tl_authcode)
         Z_PARAM_STR(key)
         Z_PARAM_LONG(expiry)
     ZEND_PARSE_PARAMETERS_END();
-    output = tl_md5(input,0);
-    RETURN_STR(output);
+
+    key = tl_md5(key,0);
+    zend_string *key_a = tl_md5(zend_string_init(ZSTR_VAL(key),16,0),0);
+    zend_string *key_b = tl_md5(zend_string_init(ZSTR_VAL(key) + 16,16,0),0);
+    zend_string *key_c;
+    if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP)){
+        key_c = zend_string_init(ZSTR_VAL(input),PHP_TL_AUTHCODE_CKEY_LENGTH,0);
+    }else{
+        zval *microtime;
+        zval *funcname;
+        ZVAL_STRING(funcname, "microtime");
+        call_user_function(CG(function_table), NULL, funcname, microtime, 0, NULL);
+        RETURN_STR(microtime);
+    }
+    //RETURN_STR(microtime);
 }
 /* }}} */
