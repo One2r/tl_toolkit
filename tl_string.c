@@ -56,15 +56,22 @@ PHP_FUNCTION(tl_authcode)
     zend_string *key_a = tl_md5(zend_string_init(ZSTR_VAL(key),16,0),0);
     zend_string *key_b = tl_md5(zend_string_init(ZSTR_VAL(key) + 16,16,0),0);
     zend_string *key_c;
-    if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP)){
+    if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         key_c = zend_string_init(ZSTR_VAL(input),PHP_TL_AUTHCODE_CKEY_LENGTH,0);
     }else{
-        zval *microtime;
-        zval *funcname;
-        ZVAL_STRING(funcname, "microtime");
-        call_user_function(CG(function_table), NULL, funcname, microtime, 0, NULL);
-        RETURN_STR(microtime);
+        zval microtime;
+        zval funcname;
+        ZVAL_STRING(&funcname,"microtime");
+        call_user_function(CG(function_table), NULL, &funcname, &microtime, 0, NULL);
+        zend_string *md5microtime = tl_md5(zend_string_init(Z_STRVAL(microtime),Z_STRLEN(microtime),0),0);
+        key_c = zend_string_init(
+                ZSTR_VAL(md5microtime)+(ZSTR_LEN(md5microtime)-PHP_TL_AUTHCODE_CKEY_LENGTH),
+                PHP_TL_AUTHCODE_CKEY_LENGTH,
+                0
+                );
+
     }
-    //RETURN_STR(microtime);
+    zval *cryptkey;
+    RETURN_STR(input);
 }
 /* }}} */
