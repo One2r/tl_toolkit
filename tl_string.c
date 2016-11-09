@@ -71,7 +71,9 @@ PHP_FUNCTION(tl_authcode)
                 );
 
     }
-    zval *cryptkey;
-    RETURN_STR(input);
+    zval cryptkey;
+    concat_function(&cryptkey, (zval *)key_a, (zval *)key_c);
+
+    RETURN_STR(zend_string_init(Z_STRVAL(cryptkey),Z_STRLEN(cryptkey),0));
 }
 /* }}} */
