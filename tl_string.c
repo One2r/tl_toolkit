@@ -34,6 +34,14 @@ zend_string *tl_md5(zend_string *str,zend_bool raw_output)
 }
 /* }}} */
 
+/** {{{ tl_concat_function
+ */
+zend_string *tl_concat_function()
+{
+
+}
+/* }}} */
+
 /*{{ tl_authcode
  */
 PHP_FUNCTION(tl_authcode)
