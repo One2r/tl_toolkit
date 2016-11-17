@@ -99,11 +99,14 @@ PHP_FUNCTION(tl_authcode)
         }
         char time_str[10];
         php_sprintf(time_str,"%010d",expiry);
-        zval z_input,z_key_b,z_input_keyb;
+        zval z_input,z_key_b,z_input_keyb,z_sub_input_keyb,z_time;
         ZVAL_STR_COPY(&z_input, input);
         ZVAL_STR_COPY(&z_key_b, key_b);
         concat_function(&z_input_keyb, &z_input, &z_key_b);
         zend_string *input_keyb = tl_md5(zend_string_init(Z_STRVAL(z_input_keyb),Z_STRLEN(z_input_keyb),0),0);
+        zend_string *sub_input_keyb = zend_string_init(ZSTR_VAL(input_keyb),16,0);
+        ZVAL_STR_COPY(&z_sub_input_keyb, sub_input_keyb);
+        ZVAL_STRING(&z_time,time_str);
     }
     RETURN_STR(cryptkey);
 }
