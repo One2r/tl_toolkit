@@ -65,11 +65,11 @@ PHP_FUNCTION(tl_authcode)
     zend_string *key_a = tl_md5(zend_string_init(ZSTR_VAL(key),16,0),0);
     zend_string *key_b = tl_md5(zend_string_init(ZSTR_VAL(key) + 16,16,0),0);
     zend_string *key_c;
+    zval funcname;
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         key_c = zend_string_init(ZSTR_VAL(input),PHP_TL_AUTHCODE_CKEY_LENGTH,0);
     }else{
         zval microtime;
-        zval funcname;
         ZVAL_STRING(&funcname,"microtime");
         call_user_function(CG(function_table), NULL, &funcname, &microtime, 0, NULL);
         zend_string *md5microtime = tl_md5(zend_string_init(Z_STRVAL(microtime),Z_STRLEN(microtime),0),0);
@@ -99,7 +99,7 @@ PHP_FUNCTION(tl_authcode)
         }
         char time_str[10];
         php_sprintf(time_str,"%010d",expiry);
-        zval z_input,z_key_b,z_input_keyb,z_sub_input_keyb,z_time;
+        zval z_input,z_key_b,z_input_keyb,z_sub_input_keyb,z_time,z_input_tmp;
         ZVAL_STR_COPY(&z_input, input);
         ZVAL_STR_COPY(&z_key_b, key_b);
         concat_function(&z_input_keyb, &z_input, &z_key_b);
@@ -107,7 +107,49 @@ PHP_FUNCTION(tl_authcode)
         zend_string *sub_input_keyb = zend_string_init(ZSTR_VAL(input_keyb),16,0);
         ZVAL_STR_COPY(&z_sub_input_keyb, sub_input_keyb);
         ZVAL_STRING(&z_time,time_str);
+        concat_function(&z_input_tmp,&z_time,&z_sub_input_keyb);
+        concat_function(&z_input,&z_input_tmp,&z_input);
+        input = Z_STR(z_input);
     }
-    RETURN_STR(cryptkey);
+
+    int rndkey[256];
+
+    int a,i,j,tmp,box[256];
+    zval ord_str,z_output,z_output_tmp;
+    zval argv[1];
+    for(i=0;i<=256;i++){
+        box[i] = i;
+        ZVAL_STRING(&funcname,"ord");
+        ZVAL_STRING(&argv[0], &ZSTR_VAL(cryptkey)[i % ZSTR_LEN(cryptkey)]);
+        call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
+        rndkey[i] = Z_DVAL(ord_str);
+    }
+
+    for(i=0,j=0;i<=256;i++){
+        j = (j + i + rndkey[i]) % 256;
+        tmp = box[i];
+        box[i] = box[j];
+        box[j] = tmp;
+    }
+
+    for(a=0,i=0,j=0;i<ZSTR_LEN(input);i++){
+        a = (a + 1) % 256;
+        j = (j + box[a]) % 256;
+        tmp = box[a];
+        box[a] = box[j];
+        box[j] = tmp;
+        ZVAL_STRING(&funcname,"ord");
+        ZVAL_STRING(&argv[0], &ZSTR_VAL(input)[i]);
+        call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
+
+        ZVAL_STRING(&funcname,"chr");
+        ZVAL_LONG(&argv[0], (int)Z_DVAL(ord_str) ^ (box[(box[a] + box[j]) % 256]));
+        call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
+        ZVAL_STR_COPY(z_output_tmp, z_output);
+        concat_function(&z_output,&z_output_tmp,&ord_str);
+    }
+
+    output = Z_STR(z_output);
+    RETURN_STR(output);
 }
 /* }}} */
