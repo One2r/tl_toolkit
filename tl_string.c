@@ -145,7 +145,7 @@ PHP_FUNCTION(tl_authcode)
         ZVAL_STRING(&funcname,"chr");
         ZVAL_LONG(&argv[0], (int)Z_DVAL(ord_str) ^ (box[(box[a] + box[j]) % 256]));
         call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
-        ZVAL_STR_COPY(&z_output_tmp, z_output);
+        ZVAL_STRING(&z_output_tmp, Z_STRVAL(z_output));
         concat_function(&z_output,&z_output_tmp,&ord_str);
     }
 
