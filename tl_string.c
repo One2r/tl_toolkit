@@ -117,7 +117,7 @@ PHP_FUNCTION(tl_authcode)
     int a,i,j,tmp,box[256];
     zval ord_str,z_output,z_output_tmp;
     zval argv[1];
-    for(i=0;i<=256;i++){
+    for(i=0;i<256;i++){
         box[i] = i;
         ZVAL_STRING(&funcname,"ord");
         ZVAL_STRING(&argv[0], &ZSTR_VAL(cryptkey)[i % ZSTR_LEN(cryptkey)]);
@@ -125,7 +125,7 @@ PHP_FUNCTION(tl_authcode)
         rndkey[i] = Z_DVAL(ord_str);
     }
 
-    for(i=0,j=0;i<=256;i++){
+    for(i=0,j=0;i<256;i++){
         j = (j + i + rndkey[i]) % 256;
         tmp = box[i];
         box[i] = box[j];
@@ -145,7 +145,7 @@ PHP_FUNCTION(tl_authcode)
         ZVAL_STRING(&funcname,"chr");
         ZVAL_LONG(&argv[0], (int)Z_DVAL(ord_str) ^ (box[(box[a] + box[j]) % 256]));
         call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
-        ZVAL_STR_COPY(z_output_tmp, z_output);
+        ZVAL_STR_COPY(&z_output_tmp, z_output);
         concat_function(&z_output,&z_output_tmp,&ord_str);
     }
 
