@@ -35,13 +35,6 @@ zend_string *tl_md5(zend_string *str,zend_bool raw_output)
 }
 /* }}} */
 
-/** {{{ tl_concat_function
- */
-zend_string *tl_concat_function()
-{
-
-}
-/* }}} */
 
 /*{{ tl_authcode
  */
@@ -74,23 +67,20 @@ PHP_FUNCTION(tl_authcode)
         call_user_function(CG(function_table), NULL, &funcname, &microtime, 0, NULL);
         zend_string *md5microtime = tl_md5(zend_string_init(Z_STRVAL(microtime),Z_STRLEN(microtime),0),0);
         key_c = zend_string_init(
-                ZSTR_VAL(md5microtime)+(ZSTR_LEN(md5microtime)-PHP_TL_AUTHCODE_CKEY_LENGTH),
+                ZSTR_VAL(md5microtime)+((ZSTR_LEN(md5microtime)-PHP_TL_AUTHCODE_CKEY_LENGTH))-1,
                 PHP_TL_AUTHCODE_CKEY_LENGTH,
                 0
                 );
 
     }
 
-    zval z_keyac,z_keya_md5keyac;
-    zval z_key_a,z_key_c,z_md5keyac;
-    ZVAL_STR_COPY(&z_key_a, key_a);
-    ZVAL_STR_COPY(&z_key_c, key_c);
-    concat_function(&z_keyac, &z_key_a, &z_key_c);
-    zend_string *md5keyac = tl_md5(zend_string_init(Z_STRVAL(z_keyac),Z_STRLEN(z_keyac),0),0);
-    ZVAL_STR_COPY(&z_md5keyac,md5keyac);
-    concat_function(&z_keya_md5keyac,&z_key_a,&z_md5keyac);
-    zend_string *cryptkey = Z_STR(z_keya_md5keyac);
-
+    char *z_keya_md5keyac,*z_keyac;
+    z_keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(key_c));
+    zend_string *md5keyac = tl_md5(zend_string_init(z_keyac,strlen(z_keyac),0),0);
+    z_keya_md5keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(md5keyac));
+    zend_string *cryptkey = zend_string_init(z_keya_md5keyac,strlen(z_keya_md5keyac),0);
+    
+    
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         input = php_base64_decode((unsigned char*)zend_string_init(ZSTR_VAL(input)+PHP_TL_AUTHCODE_CKEY_LENGTH,ZSTR_LEN(input),0),ZSTR_LEN(input)-PHP_TL_AUTHCODE_CKEY_LENGTH);
     }else{
@@ -111,20 +101,17 @@ PHP_FUNCTION(tl_authcode)
         concat_function(&z_input,&z_input_tmp,&z_input);
         input = Z_STR(z_input);
     }
-
+    
     int rndkey[256];
+    int box[256];
 
-    int a,i,j,tmp,box[256];
-    zval ord_str,z_output,z_output_tmp;
-    zval argv[1];
+    int i;
     for(i=0;i<256;i++){
         box[i] = i;
-        ZVAL_STRING(&funcname,"ord");
-        ZVAL_STRING(&argv[0], &ZSTR_VAL(cryptkey)[i % ZSTR_LEN(cryptkey)]);
-        call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
-        rndkey[i] = Z_DVAL(ord_str);
+        rndkey[i] = (int)ZSTR_VAL(cryptkey)[i % ZSTR_LEN(cryptkey)];
     }
 
+    int j,tmp;
     for(i=0,j=0;i<256;i++){
         j = (j + i + rndkey[i]) % 256;
         tmp = box[i];
@@ -132,24 +119,44 @@ PHP_FUNCTION(tl_authcode)
         box[j] = tmp;
     }
 
-    for(a=0,i=0,j=0;i<ZSTR_LEN(input);i++){
-        a = (a + 1) % 256;
-        j = (j + box[a]) % 256;
-        tmp = box[a];
-        box[a] = box[j];
+    int k,ord_int;
+    char ord_str;
+    char * ord_str_p;
+    for(k=0,i=0,j=0;i<ZSTR_LEN(input);i++){
+        k = (k + 1) % 256;
+        j = (j + box[k]) % 256;
+        tmp = box[k];
+        box[k] = box[j];
         box[j] = tmp;
-        ZVAL_STRING(&funcname,"ord");
-        ZVAL_STRING(&argv[0], &ZSTR_VAL(input)[i]);
-        call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
 
-        ZVAL_STRING(&funcname,"chr");
-        ZVAL_LONG(&argv[0], (int)Z_DVAL(ord_str) ^ (box[(box[a] + box[j]) % 256]));
-        call_user_function(CG(function_table), NULL, &funcname, &ord_str, 1, argv);
-        ZVAL_STRING(&z_output_tmp, Z_STRVAL(z_output));
-        concat_function(&z_output,&z_output_tmp,&ord_str);
+        ord_int = (int)ZSTR_VAL(input)[i];
+        ord_str = (char)(ord_int ^ (box[(box[k] + box[j]) % 256]));
+
+        ord_str_p = &ord_str;
+        if(i==0){
+          output = zend_string_init(ord_str_p,strlen(ord_str_p),0);
+        }else{
+          char *tmp_z_output = strcat(ZSTR_VAL(output),ord_str_p);
+          output = zend_string_init(tmp_z_output,strlen(tmp_z_output),0); 
+        }
+
     }
 
-    output = Z_STR(z_output);
+    if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
+        zend_string *sub_output_a = zend_string_init(ZSTR_VAL(output),10,0);
+        zend_string *sub_output_b = zend_string_init(ZSTR_VAL(output)+10,6,0);
+    }else{
+        output = php_base64_encode((unsigned char *)output,ZSTR_LEN(output));
+        char *pch;
+        do{
+          pch= strstr(ZSTR_VAL(output),"=");
+          if(pch == NULL) break;
+          strncpy (pch,"",1);
+        }while(1);
+        char *tmp_z_output = strcat(ZSTR_VAL(key_c),ZSTR_VAL(output));
+        output = zend_string_init(tmp_z_output,strlen(tmp_z_output),0); 
+
+    }
     RETURN_STR(output);
 }
 /* }}} */
