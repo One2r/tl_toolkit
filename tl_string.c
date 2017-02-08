@@ -86,18 +86,16 @@ PHP_FUNCTION(tl_authcode)
         if(expiry != 0){
             expiry += (zend_long)time(NULL);
         }
-        char time_str[10];
-        php_sprintf(time_str,"%010d",expiry);
+        char c_time_str[10];
+        php_sprintf(c_time_str,"%010d",expiry);
+        char *c_input_keyb = strcat(ZSTR_VAL(input),ZSTR_VAL(key_b));
 
-        char *z_input_keyb = strcat(ZSTR_VAL(input),ZSTR_VAL(key_b));
+        zend_string *zstr_input_keyb = tl_md5(zend_string_init(c_input_keyb,strlen(c_input_keyb),0),0);
+        zend_string *zstr_sub_input_keyb = zend_string_init(ZSTR_VAL(zstr_input_keyb),16,0);
+        char *c_input_tmp = strcat(c_time_str,ZSTR_VAL(zstr_sub_input_keyb));
 
-        zend_string *input_keyb = tl_md5(zend_string_init(z_input_keyb,strlen(z_input_keyb),0),0);
-        zend_string *sub_input_keyb = zend_string_init(ZSTR_VAL(input_keyb),16,0);
-
-        char *z_input_tmp = strcat(time_str,ZSTR_VAL(sub_input_keyb));
-
-        z_input_tmp = strcat(z_input_tmp,ZSTR_VAL(input));
-        input = zend_string_init(z_input_tmp , strlen(z_input_tmp),0);
+        c_input_tmp = strcat(c_input_tmp,ZSTR_VAL(input));
+        input = zend_string_init(c_input_tmp , strlen(c_input_tmp),0);
     }
 
     int rndkey[256];
