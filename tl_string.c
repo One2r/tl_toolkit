@@ -79,8 +79,7 @@ PHP_FUNCTION(tl_authcode)
     zend_string *md5keyac = tl_md5(zend_string_init(z_keyac,strlen(z_keyac),0),0);
     z_keya_md5keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(md5keyac));
     zend_string *cryptkey = zend_string_init(z_keya_md5keyac,strlen(z_keya_md5keyac),0);
-    
-    
+
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         input = php_base64_decode((unsigned char*)zend_string_init(ZSTR_VAL(input)+PHP_TL_AUTHCODE_CKEY_LENGTH,ZSTR_LEN(input),0),ZSTR_LEN(input)-PHP_TL_AUTHCODE_CKEY_LENGTH);
     }else{
@@ -89,19 +88,19 @@ PHP_FUNCTION(tl_authcode)
         }
         char time_str[10];
         php_sprintf(time_str,"%010d",expiry);
-        zval z_input,z_key_b,z_input_keyb,z_sub_input_keyb,z_time,z_input_tmp;
-        ZVAL_STR_COPY(&z_input, input);
-        ZVAL_STR_COPY(&z_key_b, key_b);
-        concat_function(&z_input_keyb, &z_input, &z_key_b);
-        zend_string *input_keyb = tl_md5(zend_string_init(Z_STRVAL(z_input_keyb),Z_STRLEN(z_input_keyb),0),0);
+        zval z_sub_input_keyb;
+
+        char *z_input_keyb = strcat(ZSTR_VAL(input),ZSTR_VAL(key_b));
+
+        zend_string *input_keyb = tl_md5(zend_string_init(z_input_keyb,strlen(z_input_keyb),0),0);
         zend_string *sub_input_keyb = zend_string_init(ZSTR_VAL(input_keyb),16,0);
-        ZVAL_STR_COPY(&z_sub_input_keyb, sub_input_keyb);
-        ZVAL_STRING(&z_time,time_str);
-        concat_function(&z_input_tmp,&z_time,&z_sub_input_keyb);
-        concat_function(&z_input,&z_input_tmp,&z_input);
-        input = Z_STR(z_input);
+
+        char *z_input_tmp = strcat(time_str,ZSTR_VAL(sub_input_keyb));
+
+        z_input_tmp = strcat(z_input_tmp,ZSTR_VAL(input));
+        input = zend_string_init(z_input_tmp , strlen(z_input_tmp),0);
     }
-    
+
     int rndkey[256];
     int box[256];
 
