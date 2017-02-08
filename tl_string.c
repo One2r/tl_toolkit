@@ -74,10 +74,10 @@ PHP_FUNCTION(tl_authcode)
 
     }
 
-    char *z_keya_md5keyac,*z_keyac;
-    z_keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(key_c));
+    char *z_keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(key_c));
     zend_string *md5keyac = tl_md5(zend_string_init(z_keyac,strlen(z_keyac),0),0);
-    z_keya_md5keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(md5keyac));
+
+    char *z_keya_md5keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(md5keyac));
     zend_string *cryptkey = zend_string_init(z_keya_md5keyac,strlen(z_keya_md5keyac),0);
 
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
@@ -88,7 +88,6 @@ PHP_FUNCTION(tl_authcode)
         }
         char time_str[10];
         php_sprintf(time_str,"%010d",expiry);
-        zval z_sub_input_keyb;
 
         char *z_input_keyb = strcat(ZSTR_VAL(input),ZSTR_VAL(key_b));
 
