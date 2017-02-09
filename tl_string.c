@@ -74,11 +74,11 @@ PHP_FUNCTION(tl_authcode)
 
     }
 
-    char *z_keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(key_c));
-    zend_string *md5keyac = tl_md5(zend_string_init(z_keyac,strlen(z_keyac),0),0);
-
-    char *z_keya_md5keyac = strcat(ZSTR_VAL(key_a),ZSTR_VAL(md5keyac));
-    zend_string *cryptkey = zend_string_init(z_keya_md5keyac,strlen(z_keya_md5keyac),0);
+    zend_string *zstr_keyac = zend_string_init(ZSTR_VAL(key_a),ZSTR_LEN(key_a)+ZSTR_LEN(key_c),0);
+    strcat(ZSTR_VAL(zstr_keyac),ZSTR_VAL(key_c));
+    zend_string *zstr_md5keyac = tl_md5(zstr_keyac,0);
+    zend_string *cryptkey = zend_string_init(ZSTR_VAL(key_a),ZSTR_LEN(key_a)+ZSTR_LEN(zstr_md5keyac),0);
+    strcat(ZSTR_VAL(cryptkey),ZSTR_VAL(zstr_md5keyac));
 
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         input = php_base64_decode((unsigned char*)zend_string_init(ZSTR_VAL(input)+PHP_TL_AUTHCODE_CKEY_LENGTH,ZSTR_LEN(input),0),ZSTR_LEN(input)-PHP_TL_AUTHCODE_CKEY_LENGTH);
@@ -86,16 +86,19 @@ PHP_FUNCTION(tl_authcode)
         if(expiry != 0){
             expiry += (zend_long)time(NULL);
         }
-        char c_time_str[10];
+        int i_len = ZSTR_LEN(input) + 26;
+        char c_time_str[i_len];
         php_sprintf(c_time_str,"%010d",expiry);
-        char *c_input_keyb = strcat(ZSTR_VAL(input),ZSTR_VAL(key_b));
 
-        zend_string *zstr_input_keyb = tl_md5(zend_string_init(c_input_keyb,strlen(c_input_keyb),0),0);
+        zend_string *zstr_input_new = zend_string_init(ZSTR_VAL(input),ZSTR_LEN(input)+ZSTR_LEN(key_b),0);
+        strcat(ZSTR_VAL(zstr_input_new),ZSTR_VAL(key_b));
+        zend_string *zstr_input_keyb = tl_md5(zstr_input_new,0);
+
         zend_string *zstr_sub_input_keyb = zend_string_init(ZSTR_VAL(zstr_input_keyb),16,0);
-        char *c_input_tmp = strcat(c_time_str,ZSTR_VAL(zstr_sub_input_keyb));
+        strcat(c_time_str,ZSTR_VAL(zstr_sub_input_keyb));
+        strcat(c_time_str,ZSTR_VAL(input));
 
-        c_input_tmp = strcat(c_input_tmp,ZSTR_VAL(input));
-        input = zend_string_init(c_input_tmp , strlen(c_input_tmp),0);
+        input = zend_string_init(c_time_str , strlen(c_time_str),0);
     }
 
     int rndkey[256];
