@@ -110,7 +110,7 @@ PHP_FUNCTION(tl_authcode)
     }
 
     int j,tmp;
-    for(i=0,j=0;i<256;i++){
+    for(j=i=0;i<256;i++){
         j = (j + i + rndkey[i]) % 256;
         tmp = box[i];
         box[i] = box[j];
@@ -118,25 +118,25 @@ PHP_FUNCTION(tl_authcode)
     }
 
     int k,ord_int;
-    char ord_str;
-    char *ord_str_p[ZSTR_LEN(input)];
+    unsigned char ord_str_p[ZSTR_LEN(input)];
     for(k=j=i=0;i<ZSTR_LEN(input);i++){
         k = (k + 1) % 256;
         j = (j + box[k]) % 256;
+
         tmp = box[k];
         box[k] = box[j];
         box[j] = tmp;
+
         ord_int = (int)ZSTR_VAL(input)[i];
-        ord_str = (char)(ord_int ^ (box[(box[k] + box[j]) % 256]));
-        ord_str_p[i] = &ord_str;
+        ord_str_p[i] = (unsigned char)(ord_int ^ (box[(box[k] + box[j]) % 256]));
     }
-    output = zend_string_init(*ord_str_p,ZSTR_LEN(input),0);
+    output = zend_string_init(ord_str_p,ZSTR_LEN(input),0);
 
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         zend_string *sub_output_a = zend_string_init(ZSTR_VAL(output),10,0);
         zend_string *sub_output_b = zend_string_init(ZSTR_VAL(output)+10,6,0);
     }else{
-        output = php_base64_encode((unsigned char *)output,ZSTR_LEN(output));
+        output = php_base64_encode((unsigned char *)ZSTR_VAL(output),ZSTR_LEN(output));
         char *pch;
         do{
           pch= strstr(ZSTR_VAL(output),"=");
