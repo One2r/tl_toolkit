@@ -71,7 +71,6 @@ PHP_FUNCTION(tl_authcode)
                 PHP_TL_AUTHCODE_CKEY_LENGTH,
                 0
                 );
-
     }
 
     zend_string *zstr_keyac = zend_string_init(ZSTR_VAL(key_a),ZSTR_LEN(key_a)+ZSTR_LEN(key_c),0);
@@ -120,26 +119,18 @@ PHP_FUNCTION(tl_authcode)
 
     int k,ord_int;
     char ord_str;
-    char * ord_str_p;
-    for(k=0,i=0,j=0;i<ZSTR_LEN(input);i++){
+    char *ord_str_p[ZSTR_LEN(input)];
+    for(k=j=i=0;i<ZSTR_LEN(input);i++){
         k = (k + 1) % 256;
         j = (j + box[k]) % 256;
         tmp = box[k];
         box[k] = box[j];
         box[j] = tmp;
-
         ord_int = (int)ZSTR_VAL(input)[i];
         ord_str = (char)(ord_int ^ (box[(box[k] + box[j]) % 256]));
-
-        ord_str_p = &ord_str;
-        if(i==0){
-          output = zend_string_init(ord_str_p,strlen(ord_str_p),0);
-        }else{
-          char *tmp_z_output = strcat(ZSTR_VAL(output),ord_str_p);
-          output = zend_string_init(tmp_z_output,strlen(tmp_z_output),0); 
-        }
-
+        ord_str_p[i] = &ord_str;
     }
+    output = zend_string_init(*ord_str_p,ZSTR_LEN(input),0);
 
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         zend_string *sub_output_a = zend_string_init(ZSTR_VAL(output),10,0);
@@ -152,9 +143,9 @@ PHP_FUNCTION(tl_authcode)
           if(pch == NULL) break;
           strncpy (pch,"",1);
         }while(1);
-        char *tmp_z_output = strcat(ZSTR_VAL(key_c),ZSTR_VAL(output));
-        output = zend_string_init(tmp_z_output,strlen(tmp_z_output),0); 
-
+        zend_string *tmp_z_output = zend_string_init(ZSTR_VAL(key_c),ZSTR_LEN(key_c)+ZSTR_LEN(output),0);
+        strcat(ZSTR_VAL(tmp_z_output),ZSTR_VAL(output));
+        output = tmp_z_output;
     }
     RETURN_STR(output);
 }
