@@ -80,7 +80,9 @@ PHP_FUNCTION(tl_authcode)
     strcat(ZSTR_VAL(cryptkey),ZSTR_VAL(zstr_md5keyac));
 
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
-        input = php_base64_decode((unsigned char*)zend_string_init(ZSTR_VAL(input)+PHP_TL_AUTHCODE_CKEY_LENGTH,ZSTR_LEN(input),0),ZSTR_LEN(input)-PHP_TL_AUTHCODE_CKEY_LENGTH);
+        int length =  ZSTR_LEN(input) - PHP_TL_AUTHCODE_CKEY_LENGTH;
+        unsigned char *base64_code = ZSTR_VAL(input)+PHP_TL_AUTHCODE_CKEY_LENGTH;
+        input = php_base64_decode(base64_code,length);
     }else{
         if(expiry != 0){
             expiry += (zend_long)time(NULL);
