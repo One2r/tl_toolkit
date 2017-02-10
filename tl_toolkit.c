@@ -47,9 +47,8 @@ PHP_INI_END()
 PHP_FUNCTION(tl_toolkit_info)
 {
   zend_string *strg;
-	strg = strpprintf(0, "tl_toolkit version=%s", PHP_TL_TOOLKIT_VERSION);
-
-	RETURN_STR(strg);
+  strg = strpprintf(0, "tl_toolkit version=%s", PHP_TL_TOOLKIT_VERSION);
+  RETURN_STR(strg);
 }
 /* }}} */
 
