@@ -17,7 +17,6 @@
  */
 zend_string *tl_md5(zend_string *str,zend_bool raw_output)
 {
-    zend_string *result;
     char md5str[33];
     PHP_MD5_CTX context;
     unsigned char digest[16];
