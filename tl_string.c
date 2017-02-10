@@ -102,6 +102,7 @@ PHP_FUNCTION(tl_authcode)
         zend_string *zstr_sub_input_keyb = zend_string_init(ZSTR_VAL(zstr_input_keyb),16,0);
         efree(zstr_input_keyb);
         strcat(c_time_str,ZSTR_VAL(zstr_sub_input_keyb));
+        efree(zstr_sub_input_keyb);
         strcat(c_time_str,ZSTR_VAL(input));
 
         input = zend_string_init(c_time_str , strlen(c_time_str),0);
