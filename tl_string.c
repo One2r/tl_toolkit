@@ -142,11 +142,10 @@ PHP_FUNCTION(tl_authcode)
         strcat(ZSTR_VAL(sub_output_c),ZSTR_VAL(key_b));
         zend_string *md5_sub_output_c = tl_md5(sub_output_c,0);
         md5_sub_output_c = zend_string_init(ZSTR_VAL(md5_sub_output_c),16,0);
-
         if( (expiry_code==0 || expiry_code - (zend_long)time(NULL) >0) && strcmp(ZSTR_VAL(sub_output_b),ZSTR_VAL(md5_sub_output_c)) == 0  ){
             RETURN_STR(zend_string_init(ZSTR_VAL(output)+26,ZSTR_LEN(output)-26,0));
         }else{
-            RETURN_STR(NULL);
+            RETURN_NULL();
         }
     }else{
         output = php_base64_encode((unsigned char *)ZSTR_VAL(output),ZSTR_LEN(output));
