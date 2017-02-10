@@ -46,7 +46,7 @@ PHP_INI_END()
  */
 PHP_FUNCTION(tl_toolkit_info)
 {
-    zend_string *strg;
+  zend_string *strg;
 	strg = strpprintf(0, "tl_toolkit version=%s", PHP_TL_TOOLKIT_VERSION);
 
 	RETURN_STR(strg);
@@ -115,7 +115,7 @@ PHP_MINFO_FUNCTION(tl_toolkit)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "tl_toolkit support", "enabled");
-    php_info_print_table_row(2, "version", PHP_TL_TOOLKIT_VERSION);
+  php_info_print_table_row(2, "version", PHP_TL_TOOLKIT_VERSION);
 	php_info_print_table_end();
 
 	/* Remove comments if you have entries in php.ini
