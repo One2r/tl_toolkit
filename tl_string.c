@@ -43,8 +43,7 @@ PHP_FUNCTION(tl_authcode)
     zend_long expiry = 0;
     int salt_length = INI_INT("tl_toolkit.salt_length");
     zend_string *output = NULL;
-
-    ZEND_PARSE_PARAMETERS_START(1, 4)
+    ZEND_PARSE_PARAMETERS_START(1, 3)
         Z_PARAM_STR(input)
         Z_PARAM_OPTIONAL
         Z_PARAM_STR(operate)
