@@ -32,6 +32,7 @@ static int le_tl_toolkit;
 /* {{{ PHP_INI
  */
 PHP_INI_BEGIN()
+    STD_PHP_INI_ENTRY("tl_toolkit.expiry",      "0", PHP_INI_ALL, OnUpdateLong, expiry, zend_tl_toolkit_globals, tl_toolkit_globals)
     STD_PHP_INI_ENTRY("tl_toolkit.salt_length",      "0", PHP_INI_ALL, OnUpdateLong, salt_length, zend_tl_toolkit_globals, tl_toolkit_globals)
     STD_PHP_INI_ENTRY("tl_toolkit.private_key", "", PHP_INI_ALL, OnUpdateString, private_key, zend_tl_toolkit_globals, tl_toolkit_globals)
 PHP_INI_END()
@@ -54,6 +55,7 @@ PHP_FUNCTION(tl_toolkit_info)
  */
 static void php_tl_toolkit_init_globals(zend_tl_toolkit_globals *tl_toolkit_globals)
 {
+	tl_toolkit_globals->expiry = 0;
 	tl_toolkit_globals->salt_length = 0;
 	tl_toolkit_globals->private_key = "";
 }

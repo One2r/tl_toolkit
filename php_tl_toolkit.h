@@ -44,6 +44,7 @@ extern zend_module_entry tl_toolkit_module_entry;
 
 
 ZEND_BEGIN_MODULE_GLOBALS(tl_toolkit)
+	zend_long  expiry;
 	zend_long  salt_length;
 	char *private_key;
 ZEND_END_MODULE_GLOBALS(tl_toolkit)
