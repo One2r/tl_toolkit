@@ -10,8 +10,6 @@
 #include "ext/standard/base64.h"
 
 #define PHP_TL_AUTHCODE_DEFAULT_OP   "DECODE"
-#define PHP_TL_AUTHCODE_DEFAULT_KEY  "6713wj3NZqPxPILb7MyzF2nFGc3DNoSW9yWMRA"
-#define PHP_TL_AUTHCODE_CKEY_LENGTH  4
 
 /* {{{ tl_md5
  */
@@ -41,15 +39,15 @@ PHP_FUNCTION(tl_authcode)
 {
     zend_string *input;
     zend_string *operate = zend_string_init(PHP_TL_AUTHCODE_DEFAULT_OP, sizeof(PHP_TL_AUTHCODE_DEFAULT_OP) - 1, 0);
-    zend_string *key = zend_string_init(PHP_TL_AUTHCODE_DEFAULT_KEY, sizeof(PHP_TL_AUTHCODE_DEFAULT_KEY) - 1, 0);
+    zend_string *key = zend_string_init(INI_STR("tl_toolkit.private_key"), strlen(INI_STR("tl_toolkit.private_key")), 0);
     zend_long expiry = 0;
+    int salt_length = INI_INT("tl_toolkit.salt_length");
     zend_string *output = NULL;
 
     ZEND_PARSE_PARAMETERS_START(1, 4)
         Z_PARAM_STR(input)
         Z_PARAM_OPTIONAL
         Z_PARAM_STR(operate)
-        Z_PARAM_STR(key)
         Z_PARAM_LONG(expiry)
     ZEND_PARSE_PARAMETERS_END();
 
@@ -59,7 +57,7 @@ PHP_FUNCTION(tl_authcode)
     efree(key);
     zend_string *key_c;
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
-        key_c = zend_string_init(ZSTR_VAL(input),PHP_TL_AUTHCODE_CKEY_LENGTH,0);
+        key_c = zend_string_init(ZSTR_VAL(input),salt_length,0);
     }else{
         zval funcname;
         zval microtime;
@@ -67,8 +65,8 @@ PHP_FUNCTION(tl_authcode)
         call_user_function(CG(function_table), NULL, &funcname, &microtime, 0, NULL);
         zend_string *md5microtime = tl_md5(zend_string_init(Z_STRVAL(microtime),Z_STRLEN(microtime),0),0);
         key_c = zend_string_init(
-                ZSTR_VAL(md5microtime)+((ZSTR_LEN(md5microtime)-PHP_TL_AUTHCODE_CKEY_LENGTH))-1,
-                PHP_TL_AUTHCODE_CKEY_LENGTH,
+                ZSTR_VAL(md5microtime)+((ZSTR_LEN(md5microtime)-salt_length))-1,
+                salt_length,
                 0
                 );
         efree(md5microtime);
@@ -83,8 +81,8 @@ PHP_FUNCTION(tl_authcode)
     efree(zstr_md5keyac);
 
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
-        int length =  ZSTR_LEN(input) - PHP_TL_AUTHCODE_CKEY_LENGTH;
-        unsigned char *base64_code = ZSTR_VAL(input)+PHP_TL_AUTHCODE_CKEY_LENGTH;
+        int length =  ZSTR_LEN(input) - salt_length;
+        unsigned char *base64_code = ZSTR_VAL(input)+salt_length;
         input = php_base64_decode(base64_code,length);
     }else{
         if(expiry != 0){
@@ -140,7 +138,6 @@ PHP_FUNCTION(tl_authcode)
     }
     output = zend_string_init(ord_str_p,ZSTR_LEN(input),0);
     efree(input);
-
     if(strcmp(ZSTR_VAL(operate), PHP_TL_AUTHCODE_DEFAULT_OP) == 0){
         zend_string *sub_output_a = zend_string_init(ZSTR_VAL(output),10,0);
         zend_long expiry_code = ZEND_STRTOL(ZSTR_VAL(sub_output_a),NULL,10);

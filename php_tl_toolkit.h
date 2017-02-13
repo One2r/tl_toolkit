@@ -42,15 +42,11 @@ extern zend_module_entry tl_toolkit_module_entry;
 #include "TSRM.h"
 #endif
 
-/*
-  	Declare any global variables you may need between the BEGIN
-	and END macros here:
 
 ZEND_BEGIN_MODULE_GLOBALS(tl_toolkit)
-	zend_long  global_value;
-	char *global_string;
+	zend_long  salt_length;
+	char *private_key;
 ZEND_END_MODULE_GLOBALS(tl_toolkit)
-*/
 
 /* Always refer to the globals in your function as TL_TOOLKIT_G(variable).
    You are encouraged to rename these macros something shorter, see

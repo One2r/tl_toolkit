@@ -24,21 +24,17 @@
 
 #include "php_tl_toolkit.h"
 
-/* If you declare any globals in php_tl_toolkit.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(tl_toolkit)
-*/
 
 /* True global resources - no need for thread safety here */
 static int le_tl_toolkit;
 
 /* {{{ PHP_INI
  */
-/* Remove comments and fill if you need to have entries in php.ini
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("tl_toolkit.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_tl_toolkit_globals, tl_toolkit_globals)
-    STD_PHP_INI_ENTRY("tl_toolkit.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_tl_toolkit_globals, tl_toolkit_globals)
+    STD_PHP_INI_ENTRY("tl_toolkit.salt_length",      "0", PHP_INI_ALL, OnUpdateLong, salt_length, zend_tl_toolkit_globals, tl_toolkit_globals)
+    STD_PHP_INI_ENTRY("tl_toolkit.private_key", "", PHP_INI_ALL, OnUpdateString, private_key, zend_tl_toolkit_globals, tl_toolkit_globals)
 PHP_INI_END()
-*/
 /* }}} */
 
 
@@ -56,22 +52,18 @@ PHP_FUNCTION(tl_toolkit_info)
 
 /* {{{ php_tl_toolkit_init_globals
  */
-/* Uncomment this function if you have INI entries
 static void php_tl_toolkit_init_globals(zend_tl_toolkit_globals *tl_toolkit_globals)
 {
-	tl_toolkit_globals->global_value = 0;
-	tl_toolkit_globals->global_string = NULL;
+	tl_toolkit_globals->salt_length = 0;
+	tl_toolkit_globals->private_key = "";
 }
-*/
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(tl_toolkit)
 {
-	/* If you have INI entries, uncomment these lines
 	REGISTER_INI_ENTRIES();
-	*/
 	return SUCCESS;
 }
 /* }}} */
@@ -80,9 +72,7 @@ PHP_MINIT_FUNCTION(tl_toolkit)
  */
 PHP_MSHUTDOWN_FUNCTION(tl_toolkit)
 {
-	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
-	*/
 	return SUCCESS;
 }
 /* }}} */
@@ -117,9 +107,7 @@ PHP_MINFO_FUNCTION(tl_toolkit)
   php_info_print_table_row(2, "version", PHP_TL_TOOLKIT_VERSION);
 	php_info_print_table_end();
 
-	/* Remove comments if you have entries in php.ini
 	DISPLAY_INI_ENTRIES();
-	*/
 }
 /* }}} */
 
