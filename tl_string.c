@@ -39,7 +39,7 @@ PHP_FUNCTION(tl_authcode)
 {
     zend_string *input;
     zend_string *operate = zend_string_init(PHP_TL_AUTHCODE_DEFAULT_OP, sizeof(PHP_TL_AUTHCODE_DEFAULT_OP) - 1, 0);
-    zend_string *key = zend_string_init(INI_STR("tl_toolkit.private_key"), strlen(INI_STR("tl_toolkit.private_key")), 0);
+    zend_string *key = zend_string_init(INI_STR("tl_toolkit.private_key"), 33, 0);
     zend_long expiry = INI_INT("tl_toolkit.expiry");
     zend_long salt_length = INI_INT("tl_toolkit.salt_length");
     zend_string *output = NULL;
