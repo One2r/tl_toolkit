@@ -11,6 +11,24 @@
 
 #define PHP_TL_AUTHCODE_DEFAULT_OP   "DECODE"
 
+// Check windows
+#if _WIN32 || _WIN64
+#if _WIN64
+#define ENVIRONMENT64 
+#else
+#define ENVIRONMENT32
+#endif
+#endif
+
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
+
 /* {{{ tl_md5
  */
 zend_string *tl_md5(zend_string *str,zend_bool raw_output)
@@ -155,5 +173,17 @@ PHP_FUNCTION(tl_authcode)
         output = tmp_z_output;
         RETURN_STR(output);
     }
+}
+/* }}} */
+
+/*{{ tl_get_arch
+ */
+PHP_FUNCTION(tl_get_arch)
+{
+       #ifndef ENVIRONMENT32
+       RETURN_LONG(64);
+       #else
+       RETURN_LONG(32);
+       #endif
 }
 /* }}} */
